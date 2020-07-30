@@ -30,11 +30,15 @@ class PlacePickerScreen extends StatefulWidget {
   final MapPickerStrings mapStrings;
   final String placeAutoCompleteLanguage;
 
+  final Future<List<Address>> Function(Coordinates)
+      reverseGeocoding;
+
   const PlacePickerScreen(
       {Key key,
       @required this.googlePlacesApiKey,
       @required this.initialPosition,
       @required this.mainColor,
+      this.reverseGeocoding,
       this.mapStrings,
       this.placeAutoCompleteLanguage})
       : super(key: key);
@@ -120,8 +124,9 @@ class PlacePickerScreenState extends State<PlacePickerScreen> {
 
   Future<Address> _reverseGeocoding(double lat, double lng) async {
     final coordinates = new Coordinates(lat, lng);
-    var addresses =
-        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    final reverseGeocoding = widget.reverseGeocoding ??
+        Geocoder.local.findAddressesFromCoordinates;
+    var addresses = await reverseGeocoding(coordinates);
     var first = addresses.first;
     print("${first.featureName} : ${first.addressLine}");
     return first;
